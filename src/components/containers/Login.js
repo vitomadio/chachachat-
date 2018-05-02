@@ -14,7 +14,7 @@ import React, { Component } from 'react';
 
 		return (
 			<div className="container">
-				<div className="row">
+				<div className="row justify-content-center" style={{marginTop: 25+'vh'}} >
 					<div className="col-md-4">
 						<h2 className="text-center">Login</h2>
 						<form>
