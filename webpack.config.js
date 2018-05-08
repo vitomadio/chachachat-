@@ -6,6 +6,7 @@ module.exports = {
 		path: __dirname+'/public/dist',
 		sourceMapFilename: 'bundle.map'
 	},
+	devtool: 'eval-source-map',
 	module: {
 		rules: [
 			{

@@ -1,33 +1,48 @@
-import React, { Component } from 'react';
-import { MessageForm, MessagesDisplay } from '../layouts';
-
-
+import React, { Component } from 'react'
+import { MessageForm, MessagesDisplay } from '../layouts'
+import SideNav from './SideNav.js'
+import { connect } from 'react-redux'
+import { UserActions } from '../../actions'
 
 class Home extends Component {
 	constructor(props){
 		super(props)
 		this.state = {
 			message: null,
-			newMessage: null
+			newMessage: null,
+			currentUser: null,
+			email: null
 		}
 	}
 
+	componentDidMount(){
+		const userId = this.props.auth.currentUser
+		this.props.fetchUser(userId)
+		.then((data) => {
+			this.setState({
+				email: this.props.user.email
+			})
+		})
+	}
+
 	submitMessage(){
-		let newMessage = this.state.message
-		this.setState({newMessage: newMessage})
+		
 	}
 
 	render() {
-		const newMessage = this.state.newMessage
+		const state = this.state
+		
 		return (
 			<div className="container-fluid" style={styles.container}>
 				<div className="row no-gutter" style={styles.row}>
 					<div className="col-md-5 col-lg-4 col-xl-3" style={styles.sideBar}>
-
+						<SideNav 
+							email={state.email}
+						/>
 					</div>
 					<div className="col-md-7 col-lg-8 col-xl-9" style={styles.messagesPanel}>
 						<MessagesDisplay
-							newMessage={newMessage}
+							newMessage={state.newMessage}
 							/>
 						<MessageForm 
 						 updateMessage={(e) => this.setState({message:e.target.value})}
@@ -52,7 +67,8 @@ const styles = {
 	},
 	sideBar:{
 		backgroundColor: '#191919',
-		height: 100+'vh'
+		height: 100+'vh',
+		padding: 0
 	},
 	messagesPanel: {
 		backgroundColor: '#ccc',
@@ -62,14 +78,15 @@ const styles = {
 
 const stateToProps = (state) => {
 	return {
-
+		auth: state.authReducer,
+		user: state.userReducer
 	}
 }
 
 const dispatchToPorps = (dispatch) => {
 	return {
-
+		fetchUser: (userId) => dispatch(UserActions.fetchUser(userId))
 	}
 }
 
-export default Home
+export default connect(stateToProps, dispatchToPorps)(Home)
