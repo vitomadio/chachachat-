@@ -4,6 +4,7 @@ import FlashMessage from './FlashMessage.js'
 import LoginLayout from './LoginLayout.js'
 import SignupLayout from './SignupLayout.js'
 import ContactList from './ContactList.js'
+import ChatList from './ChatList.js'
 
 
 export {
@@ -12,5 +13,6 @@ export {
 	FlashMessage,
 	LoginLayout,
 	SignupLayout,
-	ContactList
+	ContactList,
+	ChatList
 }

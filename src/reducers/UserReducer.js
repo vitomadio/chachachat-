@@ -1,37 +1,55 @@
 import constant from '../constants'
 
 var initialState = {
-	email: null,
 	usersList: [],
-	contactList: []
+	contactList: [],
+	chatsFetched:false,
+	contactsFetched: false,
+
 }
 
 export default (state = initialState, action) => {
-	let newState = Object.assign({}, state)
+	const newState = Object.assign({}, state)
+	const newUsersList = Object.assign([], newState.usersList)
+	const newContactList = Object.assign([], newState.contactList)
 
 	switch(action.type){
-		
-		case constant.USER_FETCHED: 
-			newState['email'] = action.data
-			return newState
 
 		case constant.USERS_FETCHED: 
-			let newList = Object.assign([], newState.usersList)
-			newList.push(action.data)
-			newState['usersList'] = newList
+			console.log(JSON.stringify(action.data))
+			newUsersList.push(action.data)
+			newState['usersList'] = newUsersList
+			newState['contactsFetched'] = true
 			return newState
 
 		case constant.USER_ADDED_TO_CONTACTLIST: 
-			let newContactList = Object.assign([], newState.contactList)
+			newContactList.push(action.data)
+			newState['contactList'] = newContactList
+			newState['chatsFetched'] = true
+			return newState
+
+		case constant.CONTACTS_FETCHED: 
+			newContactList.push(action.data)
+			newState['contactList'] = newContactList
+			newState['chatsFetched'] = true
+			return newState	
+		
+		case constant.NEW_CHAT_OPENED:
+			for(let i=0;i<newContactList.length;i++){
+				if(newContactList[i] == action.data){
+				 newContactList.splice(i,1)
+				}
+			}
+			newState['contactList'] = newContactList
+			return newState
+
+		case constant.CHAT_CLOSED: 
 			newContactList.push(action.data)
 			newState['contactList'] = newContactList
 			return newState
 
-		case constant.CONTACTS_FETCHED: 
-			let fetchedContactList = Object.assign([], newState.contactList)
-			fetchedContactList.push(action.data)
-			newState['contactList'] = fetchedContactList
-			return newState	
+		case constant.LOGGED_OUT: 
+				return initialState	
 
 		default: 
 			return newState

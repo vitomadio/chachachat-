@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { MessageForm, MessagesDisplay } from '../layouts'
 import SideNav from './SideNav.js'
 import { connect } from 'react-redux'
-import { UserActions } from '../../actions'
+import { UserActions, ChatActions } from '../../actions'
 
 class Home extends Component {
 	constructor(props){
@@ -11,26 +11,33 @@ class Home extends Component {
 			message: null,
 			newMessage: null,
 			currentUser: null,
-			email: null
+			email: null,
+			activeContact: {}
 		}
 	}
 
 	componentDidMount(){
-		const userId = this.props.auth.currentUser
-		this.props.fetchUser(userId)
-		.then((data) => {
-			this.setState({
-				email: this.props.user.email
-			})
+		const user = this.props.auth.currentUser
+		const avtiveChat = this.props.chat.activeChat
+		this.setState({
+			email: this.props.auth.currentUser.email
 		})
+		if(!this.props.msg.messagesLoaded){
+			this.props.fetchMessages(user)
+		}
 	}
 
 	submitMessage(){
-		
+		const contact = this.state.activeContact
+		const user = this.props.auth.currentUser
+		const message = this.state.message
+		this.props.submitMessage(user, contact, message)
 	}
+
 
 	render() {
 		const state = this.state
+		const messages = this.props.msg.messages
 		
 		return (
 			<div className="container-fluid" style={styles.container}>
@@ -38,11 +45,14 @@ class Home extends Component {
 					<div className="col-md-5 col-lg-4 col-xl-3" style={styles.sideBar}>
 						<SideNav 
 							email={state.email}
+							activeContact={(contact) => {
+								this.setState({activeContact: contact})
+							}}
 						/>
 					</div>
 					<div className="col-md-7 col-lg-8 col-xl-9" style={styles.messagesPanel}>
 						<MessagesDisplay
-							newMessage={state.newMessage}
+							messages={messages}
 							/>
 						<MessageForm 
 						 updateMessage={(e) => this.setState({message:e.target.value})}
@@ -79,13 +89,17 @@ const styles = {
 const stateToProps = (state) => {
 	return {
 		auth: state.authReducer,
-		user: state.userReducer
+		user: state.userReducer,
+		msg: state.msgReducer,
+		chat: state.chatReducer
 	}
 }
 
 const dispatchToPorps = (dispatch) => {
 	return {
-		fetchUser: (userId) => dispatch(UserActions.fetchUser(userId))
+		fetchUser: (userId) => dispatch(UserActions.fetchUser(userId)),
+		submitMessage: (user, contact, message) => dispatch(ChatActions.submitMessage(user, contact, message)),
+		fetchMessages: (user) => dispatch(ChatActions.fetchMessages(user))
 	}
 }
 

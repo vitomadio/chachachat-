@@ -4,40 +4,19 @@ const db = firebase.firestore().collection('users')
 
 export default {
 
-createUserDocument: (body) => {
+checkIfUserExists: (user) => {
 	return (dispatch) => {
-		return db.doc(body.userId).set({
-			email: body.email
-		})
-		.then(() => {
-			return {success: true}
-		})
-	}
-},
-
-checkIfUserExists: (email) => {
-	return (dispatch) => {
-		return db.where('email','==',email).get()
+		return db.where('email','==',user.email).get()
 		.then(querySnapshot => {
 			querySnapshot.forEach((doc) => {
-				return doc
+				if(doc !== null){
+				}else
+					return db.doc(user.uid).set({
+						email: user.email,
+						chat:  false, 
+						activeChat: false
+					})
 			})
-		})
-	}
-},
-
-fetchUser: (userId) => {
-	return (dispatch) => {
-		return db.doc(userId).get()
-
-		.then((user) => {
-			return dispatch({
-				type: constant.USER_FETCHED,
-				data: user.data().email
-			})
-		})
-		.catch(err => {
-			console.log(err.message)
 		})
 	}
 },
@@ -49,7 +28,10 @@ fetchUsers: () => {
 		 	users.forEach(user => {
 			 	return dispatch({
 					type: constant.USERS_FETCHED,
-					data: user.data()
+					data: {
+						email:user.data().email,
+						uid:user.id
+					}
 	 			})
 		 	})
 		 })
@@ -59,10 +41,9 @@ fetchUsers: () => {
 	}	
 },
 
-
 fetchContactList: (userId) => {
 	return (dispatch) => {
-		return db.doc(userId).collection('contacts').get()
+		return db.doc(userId).collection('contacts').where('chat','==',false).get()
 		.then(contacts => {
 			contacts.forEach(contact => {
 				return dispatch({
@@ -79,9 +60,8 @@ fetchContactList: (userId) => {
 
 addUserToContactList: (body) => {
 	return (dispatch) => {
-		return db.doc(body.userId).collection('contacts').doc(body.newContact.email).set(body.newContact)
+		return db.doc(body.userId).collection('contacts').doc(body.newContact.uid).set(body.newContact)
 		.then(() => {
-			console.log(JSON.stringify(body.newContact))
 			return dispatch({
 				type:constant.USER_ADDED_TO_CONTACTLIST,
 				data:body.newContact

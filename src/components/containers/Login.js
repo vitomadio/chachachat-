@@ -30,27 +30,8 @@ import { FlashMessage, LoginLayout, SignupLayout } from '../layouts'
 			if(data.code){
 				this.setState({message: data.message})
 			}else{
-				
-				this.props.checkIfUserExists(data.data.email)
-				.then(user => {
-					if(user){
-						console.log(JSON.stringify(user))
-					}else{
-						let body = {
-							userId: data.data.uid,
-							email: data.data.email
-						}
-						
-						this.props.createUserDocument(body)
-						.then(response => {
-							if(response.success == true){
-								// this.props.fetchUser(data.data.uid)
-								this.props.history.push('/home')
-							}
-							this.setState({message: 'Something whent wrong!'})
-						})
-					}
-				})
+				this.props.checkIfUserExists(data.data)
+				this.props.history.push('/home')
 			}
 		})
  	}

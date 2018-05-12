@@ -2,18 +2,22 @@ import React from 'react';
 
 const MessagesDisplay = (props) => {
 	
-	const newMessage = props.newMessage
+	const message = props.messages.map((message,i) => {
+		return (	    	
+  		(message !== null) ? <li key={i} className="list-group-item" style={styles.col}>
+			 	<div className="card" style={styles.card}>
+			 		<p className="mb-0">{message.from}:</p>
+			 		 <p className="mb-0">{message.text}</p>
+			 	</div> 
+			</li> : null		  
+		)
+	})
+
   return (
     <div className="row" style={styles.row}>
-	    <div className="list-group">
-	    	{
-	    		(newMessage !== null) ? <div className="list-group-item  col-md-7" style={styles.col}>
-    			 	<div className="card" style={styles.card}>
-    			 		Me: {newMessage}
-    			 	</div> 
-    			</div> : null
-	    	}
-	    </div>
+	    <ul className="list-group col-md-7">
+	      {message}
+	    </ul>
 		</div>
   )
 }
@@ -28,7 +32,10 @@ const styles = {
 	},
 	card: {
 		padding: 1+'em',
-		borderRadius: 1+'em'
+		borderRadiusInputTopLeft: 0,
+		borderRadiusInputTopRight: 10,
+		borderRadiusInputBottomLeft: 10,
+		borderRadiusInputBottomRight: 10,
 	}
 }
 

@@ -1,13 +1,15 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import thunk from 'redux-thunk'
-import { AuthReducer, UserReducer } from '../reducers'
+import { AuthReducer, UserReducer, ChatReducer, MessageReducer } from '../reducers'
 
  let store 
  export default {
  	configure: (state) => {
  		const reducers = combineReducers({
 			authReducer: AuthReducer,
-			userReducer: UserReducer
+			userReducer: UserReducer,
+			chatReducer: ChatReducer,
+			msgReducer: MessageReducer
  		})
 
  		if(state){

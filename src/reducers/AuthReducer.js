@@ -9,11 +9,11 @@ export default (state = initialState, action) => {
 
 	switch(action.type){
 		case constant.LOGGED_IN: 
-			newState['currentUser'] = action.data.uid
+			newState['currentUser'] = action.data
 			return newState
 
 		case constant.USER_SIGNED_UP:
-			newState['currentUser'] = action.data.uid
+			newState['currentUser'] = action.data
 			return newState
 
 		default: 

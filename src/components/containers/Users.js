@@ -12,29 +12,27 @@ class Users extends Component {
 	}
 
 	componentDidMount(){
-		this.props.fetchUsers()
-		console.log(this.props.auth)
-
-	}
-
-	componentDidUpdate(){
-		console.log(JSON.stringify(this.props.contacts))
+		if(this.props.user.contactsFetched === false){
+			this.props.fetchUsers()
+		}
 	}
 
 	addUserToContactList(user, e){
+		console.log(JSON.stringify(user))
 		e.preventDefault()
-		let userId = this.props.auth
+		let userId = this.props.auth.currentUser.uid
 		let body = {
 			userId: userId,
-			newContact: user
+			newContact: {
+				email: user.email,
+				uid: user.uid,
+				chat: false
+			}
 		}
 		this.props.addUserToContactList(body)
 		.then(data => {
-			console.log(JSON.stringify(data))
 			if(data!==null){
-				this.setState({
-					message: data.data.email+' was added to your contact list'
-				})
+				this.props.history.push('/home')
 			}else{ 
 				null
 			}
@@ -42,12 +40,15 @@ class Users extends Component {
 	}
 
 	render() {
-	const message = this.state.message
-	const users = this.props.users.map((user,i) => {
+		const currentUser = this.props.auth.currentUser.uid
+		const message = this.state.message
+		const users = this.props.users.map((user,i) => {
 		return (
-			<li key={i} style={styles.link} className="list-group-item" onClick={this.addUserToContactList.bind(this, user)}>{user.email}</li>
+			(currentUser !== user.uid) ?
+				<li key={i} style={styles.link} className="list-group-item" onClick={this.addUserToContactList.bind(this, user)}>{user.email}</li> :
+				null
 			)
-	})
+		})
 
 		return (
 			<div className="container">
@@ -74,8 +75,9 @@ const styles = {
 const stateToProps = (state) => {
 	return {
 		users: state.userReducer.usersList,
+		user: state.userReducer,
 		contacts: state.userReducer.contactList,
-		auth: state.authReducer.currentUser
+		auth: state.authReducer
 	}
 }
 

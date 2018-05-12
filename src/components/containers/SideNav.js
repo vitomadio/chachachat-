@@ -1,39 +1,67 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { AuthActions, UserActions } from '../../actions'
+import { AuthActions, UserActions, ChatActions } from '../../actions'
 import { withRouter, Link } from 'react-router-dom'
-import { ContactList } from '../layouts'
+import { ContactList, ChatList } from '../layouts'
 
 class SideNav extends Component {
 	constructor(props){
 		super(props)
 		this.state = {
-		
+			activeContact:null
 		}
 	}
 
 	componentDidMount(){
-		const userId = this.props.auth.currentUser
-		this.props.fetchContactList(userId)
+		const userId = this.props.auth.currentUser.uid
+		if(this.props.user.chatsFetched === false){
+			this.props.fetchChats(userId)
+			this.props.fetchContactList(userId)
+		}
+		this.props.fetchActivatedChat(userId)
+		.then(res => {
+			this.props.activeContact(res.data.activeChat)
+		})
 	}
 
 	logOut(e){
 		e.preventDefault()
-		
 		this.props.logOut()
 		.then(() => {
 			this.props.history.push('/')
 		})
+	}
 
+	openChat(contact, boolean, e){
+		const userId = this.props.auth.currentUser.uid
+		e.preventDefault()
+		this.props.openChat(userId, contact, boolean)
+		this.props.activeContact(contact)
+	}
+
+	activateChat(contact, e){
+		const userId = this.props.auth.currentUser.uid
+		e.preventDefault()
+		console.log('SideNav: '+JSON.stringify(contact))
+		this.props.activateChat(userId, contact)
+		this.props.activeContact(contact)
+	}
+
+	deleteConversation(contact, boolean, e){
+		const userId = this.props.auth.currentUser.uid
+		e.preventDefault()
+		this.props.openChat(userId, contact, boolean)
+		.then(() => {
+				
+		})
 	}
 
 	render() {
 
-		const contacts = this.props.user.contactList.map((contact, i) => {
-			return (
-					<li className="list-group-item" key={i} style={styles.contactList}>{contact.email}</li>
-				)
-		})
+		const contacts = this.props.user.contactList || null
+		const chats = this.props.chat.chatList || null
+		const active = this.props.chat.activeChat || null
+
 
 		return (
 			<div>
@@ -50,7 +78,7 @@ class SideNav extends Component {
 				        	</button>
 				        	<div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
 								    <Link className="dropdown-item" to="/profile">Profile</Link>
-								    <a className="dropdown-item" onClick={this.logOut.bind(this)}>logout</a>
+								    <a className="dropdown-item" onClick={this.logOut.bind(this)}>Logout</a>
 								    <Link className="dropdown-item"to="/users">Add Contact</Link>
 								  </div>
 				        </div>
@@ -58,8 +86,18 @@ class SideNav extends Component {
 						</ul>			   
 				  </div>
 				</nav>
-				<hr style={{borderColor:'#ddd'}}/>
-				<ContactList contacts={contacts} />
+				<hr style={styles.hr} />
+				<ChatList 
+					chats={chats}
+					active={active}
+					deleteConversation={(contact, boolean) => this.deleteConversation.bind(this, contact, boolean)}
+					activateChat={(contact) => this.activateChat.bind(this, contact)}
+
+				/>
+				<ContactList 
+					contacts={contacts}
+					openChat={(contact, boolean) => this.openChat.bind(this, contact, boolean)}
+				/>		
 			</div>
 
 		);
@@ -70,24 +108,29 @@ const styles = {
 	links: {
 		color: '#ddd',
 	},
-	contactList: {
-		border: 'none',
-		backgroundColor: 'transparent',
-		color: '#ddd'
+	hr:{
+		borderColor: '#6a6a6a',
+		margin:0
 	}
+
 }
 
 const stateToProps = (state) => {
 	return {
 		auth: state.authReducer,
-		user: state.userReducer
+		user: state.userReducer,
+		chat: state.chatReducer
 	}
 }
 
 const dispatchToProps = (dispatch) => {
 	return {
 		logOut: () => dispatch(AuthActions.logOut()),
-		fetchContactList: (userId) => dispatch(UserActions.fetchContactList(userId))
+		fetchContactList: (userId) => dispatch(UserActions.fetchContactList(userId)),
+		fetchChats: (userId) => dispatch(ChatActions.fetchChats(userId)),
+		openChat: (userId, contact, boolean) => dispatch(ChatActions.openChat(userId, contact, boolean)),
+		activateChat: (userId, contact) => dispatch(ChatActions.activateChat(userId, contact)),
+		fetchActivatedChat: (userId) => dispatch(ChatActions.fetchActivatedChat(userId))
 	}
 }
 

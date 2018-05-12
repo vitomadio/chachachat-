@@ -37,8 +37,10 @@ export default {
 	logOut: () => {
 		return (dispatch) => {
 			return fb.signOut()
-			.then((data) => {
-				return data
+			.then(() => {
+				return dispatch({
+					type: constant.LOGGED_OUT
+				})
 			})
 		}
 	},
