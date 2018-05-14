@@ -87,7 +87,7 @@ submitMessage: (user, contact, message) => {
 	return (dispatch) => {
 		return db.doc(user.uid).collection('chats').doc(contact.email).collection('messages').add({
 			text: message,
-			from: 'Me: '
+			from: 'Me'
 		})
 		.then(() => {
 			return dispatch({

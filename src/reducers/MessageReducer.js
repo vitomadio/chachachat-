@@ -19,7 +19,7 @@ export default (state = initialState, action) => {
 			newMessages.push(action.data)
 			console.log(JSON.stringify(action.data))
 			newState['messages'] = newMessages
-			newState['messagesLoaded'] = true
+			
 			return newState
 
 		default:
