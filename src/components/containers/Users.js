@@ -12,24 +12,15 @@ class Users extends Component {
 	}
 
 	componentDidMount(){
-		if(this.props.user.contactsFetched === false){
+		if(this.props.user.usersFetched == false){
 			this.props.fetchUsers()
 		}
 	}
 
 	addUserToContactList(user, e){
-		console.log(JSON.stringify(user))
 		e.preventDefault()
-		let userId = this.props.auth.currentUser.uid
-		let body = {
-			userId: userId,
-			newContact: {
-				email: user.email,
-				uid: user.uid,
-				chat: false
-			}
-		}
-		this.props.addUserToContactList(body)
+		const currentUserId = this.props.auth.currentUser.uid
+		this.props.addUserToContactList(currentUserId, user)
 		.then(data => {
 			if(data!==null){
 				this.props.history.push('/home')
@@ -40,11 +31,11 @@ class Users extends Component {
 	}
 
 	render() {
-		const currentUser = this.props.auth.currentUser.uid
+		const currentUser = this.props.auth.currentUser
 		const message = this.state.message
-		const users = this.props.users.map((user,i) => {
+		const users = this.props.user.usersList.map((user,i) => {
 		return (
-			(currentUser !== user.uid) ?
+			(currentUser.uid !== user.uid) ?
 				<li key={i} style={styles.link} className="list-group-item" onClick={this.addUserToContactList.bind(this, user)}>{user.email}</li> :
 				null
 			)
@@ -74,7 +65,7 @@ const styles = {
 
 const stateToProps = (state) => {
 	return {
-		users: state.userReducer.usersList,
+	
 		user: state.userReducer,
 		contacts: state.userReducer.contactList,
 		auth: state.authReducer
@@ -84,7 +75,7 @@ const stateToProps = (state) => {
 const dispatchToProps = (dispatch) => {
 	return {
 		fetchUsers: () => dispatch(UserActions.fetchUsers()),
-		addUserToContactList: (body) => dispatch(UserActions.addUserToContactList(body))
+		addUserToContactList: (currentUserId, user) => dispatch(UserActions.addUserToContactList(currentUserId, user))
 	}
 }
 

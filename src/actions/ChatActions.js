@@ -1,124 +1,90 @@
 import constant from '../constants'
 
-const db = firebase.firestore().collection('users')
+const firestore = firebase.firestore();
+  const settings = {/* your settings... */ timestampsInSnapshots: true};
+  firestore.settings(settings);
+
+const db = firestore.collection('users')
 
 export default {
 
-fetchChats: (userId) => {
+fetchChatList: (user) => {
 	return (dispatch) => {
-		return db.doc(userId).collection('contacts').where('chat','==',true)
-		.get()
-		.then((contacts) => {
-			contacts.forEach(contact => {
+		return db.doc(user.uid).collection('chats')
+		.onSnapshot(chats => {
+			const chatList = []
+			chats.forEach(chat => {
+				chatList.push(chat.data())
 				return dispatch({
-					type:constant.CONTACT_CHAT_FETCHED,
-					data:contact.data()
+					type: constant.CHATS_FETCHED,
+					data: chatList
 				})
 			})
-		})
-		.catch(err => {
-			console.log(err.message)
 		})
 	}
 },
 
-openChat: (userId, contact, boolean) => {
+activateChat: (user, contact) => {
 	return (dispatch) => {
-		return db.doc(userId).collection('contacts').doc(contact.uid)
-		.update({
-			chat: boolean
-		})
-		.then(() => {
-			if(boolean === true){
-				return db.doc(userId).set({
-				activeChat:contact.email
-				},{merge: true})
-				.then(() => {
-					return dispatch({
-						type:constant.NEW_CHAT_OPENED,
-						data:contact
-					})
-				})
-			}else{
-				return dispatch({
-					type:constant.CHAT_CLOSED,
-					data:contact
-				})
+		return db.doc(user.uid).update({
+			activeChat: {
+				email: contact.email,
+				uid: contact.uid
 			}
 		})
-		.catch(err => {
-			console.log(err.message)
-		})
-	}
-},
-
-activateChat: (userId, contact) => {
-	console.log(JSON.stringify(contact))
-	return (dispatch) => {
-	  return db.doc(userId).update({
-			activeChat:contact.email
-		})
-		.then(()=> {
-			return dispatch({
-				type:constant.CHAT_ACTIVATED,
-				data:contact.email
-			})
-		})
-		.catch(err => console.log(err.message))
-	}
-},
-
-fetchActivatedChat: (userId) => {
-	return (dispatch) => {
-		return db.doc(userId)
-		.get()
-		.then((contact)=> {
-				return dispatch({
-					type: constant.ACTIVE_CHAT_FETCHED, 
-					data: contact.data()
-				})
-			
-		})
-		.catch(err => console.log(err.message))
-	}
-},
-
-submitMessage: (user, contact, message) => {
-	return (dispatch) => {
-		return db.doc(user.uid).collection('chats').doc(contact.email).collection('messages').add({
-			text: message,
-			from: 'Me'
-		})
 		.then(() => {
-			return dispatch({
-				type: constant.MESSAGE_SENT,
-				data: message
-			})
-		})
-		.then(() => {
-			return db.doc(contact.uid).collection('chats').doc(user.email).collection('messages').add({
-				text: message, 
-				from: user.email
-			})
-		})
-		.catch(err => console.log(err.message))
-	}
-},
-
-fetchMessages: (user) => {
-	return (dispatch) => {
-		return db.doc(user.uid)
-		.get()
-		.then((activeContact) => {
-			return db.doc(user.uid).collection('chats').doc(activeContact.data().activeChat).collection('messages').get()
-			.then(messages => {
-				messages.forEach(message=>{
+			return db.doc(user.uid).collection('chats').doc(contact.uid).collection('messages')
+			.get()
+			.then((messages) => {
+				let messageList = []
+				messages.forEach((message) => {
+					messageList.push(message.data())	
 					return dispatch({
-						type:constant.MESSAGES_FETCHED,
-						data: message.data()
+						type: constant.CHAT_ACTIVATED,
+						data: messageList
 					})
 				})
 			})
+		})
+	}
+},
+
+setActiveChat: (contact) => {
+	return (dispatch) => {
+		return dispatch({
+			type: constant.ACTIVE_CHAT_SET,
+			data: contact
+		})
+	}
+},
+
+deleteConversation: (user, contact) => {
+	return (dispatch) => {
+		return db.doc(user.uid).collection('messages').doc(contact).delete()
+		.then(() => {
+			return dispatch({
+				type: constant.CHAT_CLOSED,
+				data: {email: contact}
+			})
+		})
+	}
+},
+
+fetchActiveChat: (user) => {
+	return (dispatch) => {
+		return db.doc(user.uid)
+		.onSnapshot(doc => {
+			if (doc.data().activeChat.uid !== ""){
+				let email = doc.data().activeChat.email
+				let uid = doc.data().activeChat.uid
+				return dispatch({
+					type: constant.ACTIVE_CHAT_FETCHED,
+					data: {
+						email: email,
+						uid: uid
+					}
+				})
+			}
 		})
 	}
 }

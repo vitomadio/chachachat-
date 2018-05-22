@@ -2,26 +2,24 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { AuthActions, UserActions, ChatActions } from '../../actions'
 import { withRouter, Link } from 'react-router-dom'
-import { ContactList, ChatList } from '../layouts'
+import { ChatList } from '../layouts'
 
 class SideNav extends Component {
 	constructor(props){
 		super(props)
 		this.state = {
-			activeContact:null
+			activeChat: {}
 		}
 	}
 
 	componentDidMount(){
-		const userId = this.props.auth.currentUser.uid
-		if(this.props.user.chatsFetched === false){
-			this.props.fetchChats(userId)
-			this.props.fetchContactList(userId)
-		}
-		this.props.fetchActivatedChat(userId)
-		.then(res => {
-			this.props.activeContact(res.data.activeChat)
-		})
+		const user = this.props.auth.currentUser
+
+		
+		
+
+		//Fetch Active Chat
+		this.props.fetchActiveChat(user)
 	}
 
 	logOut(e){
@@ -32,25 +30,18 @@ class SideNav extends Component {
 		})
 	}
 
-	openChat(contact, boolean, e){
-		const userId = this.props.auth.currentUser.uid
-		e.preventDefault()
-		this.props.openChat(userId, contact, boolean)
-		this.props.activeContact(contact)
-	}
-
 	activateChat(contact, e){
-		const userId = this.props.auth.currentUser.uid
 		e.preventDefault()
-		console.log('SideNav: '+JSON.stringify(contact))
-		this.props.activateChat(userId, contact)
-		this.props.activeContact(contact)
+		const user = this.props.auth.currentUser
+		this.props.activateChat(user, contact)
+		this.props.fetchChatList(user)
+
 	}
 
-	deleteConversation(contact, boolean, e){
-		const userId = this.props.auth.currentUser.uid
+	deleteConversation(contact, e){
+		const user = this.props.auth.currentUser
 		e.preventDefault()
-		this.props.openChat(userId, contact, boolean)
+		this.props.deleteConversation(user, contact)
 		.then(() => {
 				
 		})
@@ -58,18 +49,23 @@ class SideNav extends Component {
 
 	render() {
 
-		const contacts = this.props.user.contactList || null
-		const chats = this.props.chat.chatList || null
-		const active = this.props.chat.activeChat || null
-
+		const user = this.props.auth.currentUser
+		// const contacts = this.props.user.contactList
+		const chats = this.props.chat.chatList
+		const activeChat = this.props.chat.activeChat
 
 		return (
 			<div>
-				<nav className="navbar navbar-expand-lg navbar-light bg-transparent">
+				<nav className="navbar navbar-expand-md navbar-light bg-transparent">
 				  <div className="collapse navbar-collapse" id="navbarSupportedContent">
 				    <ul className="navbar-nav ml-auto">
 				    	<li className="nav-item" >
-				    	<span className="navbar-text" style={styles.links}>Hello {this.props.email} !</span>
+				    	<span className="navbar-text mr-3" style={styles.links}>Hello {user.email} !</span>
+				    	</li>
+				    	<li className="nav-item">
+								<button className="btn btn-link nav-link" onClick={this.props.openContacts.bind(this)}>
+				        		<i class="far fa-comment-alt" style={styles.links} ></i>
+				        	</button>
 				    	</li>
 				      <li className="nav-item ">
 				        <div className="dropdown">
@@ -79,7 +75,7 @@ class SideNav extends Component {
 				        	<div className="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
 								    <Link className="dropdown-item" to="/profile">Profile</Link>
 								    <a className="dropdown-item" onClick={this.logOut.bind(this)}>Logout</a>
-								    <Link className="dropdown-item"to="/users">Add Contact</Link>
+								    <Link className="dropdown-item" to="/users">Add Contact</Link>
 								  </div>
 				        </div>
 				      </li>
@@ -89,15 +85,11 @@ class SideNav extends Component {
 				<hr style={styles.hr} />
 				<ChatList 
 					chats={chats}
-					active={active}
-					deleteConversation={(contact, boolean) => this.deleteConversation.bind(this, contact, boolean)}
+					active={activeChat}
 					activateChat={(contact) => this.activateChat.bind(this, contact)}
-
+					deleteConversation={(contact) => this.deleteConversation.bind(this, contact)}
 				/>
-				<ContactList 
-					contacts={contacts}
-					openChat={(contact, boolean) => this.openChat.bind(this, contact, boolean)}
-				/>		
+				
 			</div>
 
 		);
@@ -126,11 +118,13 @@ const stateToProps = (state) => {
 const dispatchToProps = (dispatch) => {
 	return {
 		logOut: () => dispatch(AuthActions.logOut()),
-		fetchContactList: (userId) => dispatch(UserActions.fetchContactList(userId)),
-		fetchChats: (userId) => dispatch(ChatActions.fetchChats(userId)),
-		openChat: (userId, contact, boolean) => dispatch(ChatActions.openChat(userId, contact, boolean)),
-		activateChat: (userId, contact) => dispatch(ChatActions.activateChat(userId, contact)),
-		fetchActivatedChat: (userId) => dispatch(ChatActions.fetchActivatedChat(userId))
+		activateChat: (user, contact) => {
+			dispatch(ChatActions.activateChat(user, contact)),
+			dispatch(ChatActions.setActiveChat(contact))
+		},
+		fetchActiveChat: (user) => dispatch(ChatActions.fetchActiveChat(user)),
+		deleteConversation: (user, contact) => dispatch(ChatActions.deleteConversation(user, contact)),
+		fetchChatList: (user) => dispatch(ChatActions.fetchChatList(user))
 	}
 }
 

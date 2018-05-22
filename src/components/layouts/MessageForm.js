@@ -19,11 +19,11 @@ class MessageForm extends Component {
 	render(){
 
 	  return (
-			<div className="row justify-content-center" style={styles.messageRow}>
-				<form className="form-group mb-0 col-12 py-2" >
+			<div className="row justify-content-center align-items-center" style={styles.messageRow}>
+				<form className="form-group mb-0 col-12" >
 					<textarea
 					 type="text"
-					 className="form-control form-control-sm"
+					 className="form-control form-control-sm "
 					 name="message" 
 					 id="messageForm"  
 					 rows="1" 

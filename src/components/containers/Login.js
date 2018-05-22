@@ -8,7 +8,6 @@ import { FlashMessage, LoginLayout, SignupLayout } from '../layouts'
  	constructor(props){
  		super(props)
  		this.state = {
- 			currentUser: null,
  			message:null,
  			signupForm:false,
  			credentials: {
@@ -44,7 +43,12 @@ import { FlashMessage, LoginLayout, SignupLayout } from '../layouts'
 			if(data.code){
 				this.setState({message: data.message})
 			}else{		
-				this.props.history.push('/home')					
+				this.setState({
+					signupForm:false,
+					loginColor: 'black',
+					signupColor: 'grey',
+					message: 'Please login with your new credentials'
+				});					
 			}
 		})
  	}
@@ -130,7 +134,7 @@ const dispatchToProps = (dispatch) => {
 		login: (credentials) => dispatch(AuthActions.login(credentials)),
 		signUp: (credentials) => dispatch(AuthActions.signUp(credentials)),
 		createUserDocument: (body) => dispatch(UserActions.createUserDocument(body)),
-		checkIfUserExists: (email) => dispatch(UserActions.checkIfUserExists(email))
+		checkIfUserExists: (user) => dispatch(UserActions.checkIfUserExists(user))
 		
 	}
 }

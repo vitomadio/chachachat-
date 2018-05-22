@@ -1,14 +1,13 @@
 import React from 'react';
 
 const ContactList = (props) => {
-
 	const contacts = props.contacts.map((contact, i) => {
 		return (
 				<li 
 					className="list-group-item" 
 					key={i} 
 					style={styles.contactList}
-					onClick={props.openChat(contact, true)}
+					onClick={props.activateContact(contact)}
 				><div><span className="my-auto">{contact.email}</span>
 						<i className="fas fa-caret-down float-right" 
 							id="dropdownMenuButton" 
@@ -23,19 +22,23 @@ const ContactList = (props) => {
 					    <a className="dropdown-item" >Delete Conversation </a>
 					  </div>
 					</div>
-				</li>
+				</li> 
 			)
 	})
 
   return (
   	<div>
   		<hr style={styles.hr}/>
-  		<div className="row justify-content-center no-gutters">
+  		<div className="row  no-gutters">
   			<div style={styles.ul}>
-  				<h4 className="text-center mt-2" style={styles.title}>Contacts</h4>
-  				    <ul className="list-group">
-  				    	{contacts}
-  				    </ul>
+  				<h4 className="text-center mt-2" style={styles.title}>
+	  				<span className="float-left ml-4" onClick={props.close}>
+		  				<i className="fas fa-arrow-left " style={styles.links}></i>
+	  				</span>Contacts
+  				</h4>
+			    <ul className="list-group">
+			    	{contacts}
+			    </ul>
   			</div>
   		</div>
   	</div>
@@ -58,6 +61,9 @@ const styles = {
 		hr:{
 		borderColor: '#6a6a6a',
 		margin:0
+	},
+	links: {
+		color: '#ddd'
 	}
 }
 

@@ -4,7 +4,7 @@ const ChatList = (props) => {
 	const active = props.active 
 	const chats = props.chats.map((chat, i) => {
 		return (
-				 (chat.email == active) ?
+				 (chat.email == active.email) ?
 					<li 
 						className="list-group-item drop-down" 
 						key={i} 
@@ -28,7 +28,7 @@ const ChatList = (props) => {
 					    <a className="dropdown-item" >Contact Info</a>
 					    <a className="dropdown-item" >Block Contact</a>
 					    <a className="dropdown-item" 
-								onClick={props.deleteConversation(chat, false)}
+								onClick={props.deleteConversation(chat)}
 					    >Delete Conversation </a>
 					  </div>
 					</div>
@@ -56,7 +56,7 @@ const ChatList = (props) => {
 					    <a className="dropdown-item" >Contact Info</a>
 					    <a className="dropdown-item" >Block Contact</a>
 					    <a className="dropdown-item" 
-								onClick={props.deleteConversation(chat, false)}
+								onClick={props.deleteConversation(chat)}
 					    >Delete Conversation </a>
 					  </div>
 					</div>

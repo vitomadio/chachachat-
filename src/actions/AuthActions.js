@@ -22,10 +22,11 @@ export default {
 	signUp: (credentials) => {
 		return (dispatch) => {
 			return fb.createUserWithEmailAndPassword(credentials.email, credentials.password)
-			.then(data => {
-				 dispatch({
+			.then(() => {
+				
+				return dispatch({
 					type: constant.USER_SIGNED_UP,
-					data: data
+					data: 'success'
 				});
 			})
 			.catch(err => {

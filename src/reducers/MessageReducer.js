@@ -1,25 +1,32 @@
 import constant from '../constants'
 
 var initialState = {
-	messages: [],
+	messagesList: [],
 	messagesLoaded: false
 }
 
 export default (state = initialState, action) => {
 	const newState = Object.assign({}, state) 
-	const newMessages = Object.assign([], newState.messages)
+	const newMessages = Object.assign([], newState.messagesList)
 	switch (action.type){
 		
 		case constant.MESSAGE_SENT: 
 			newMessages.push(action.data)
-			newState['messages'] = newMessages
+			newState['messagesList'] = newMessages
 			return newState
 
 		case constant.MESSAGES_FETCHED:
-			newMessages.push(action.data)
-			console.log(JSON.stringify(action.data))
-			newState['messages'] = newMessages
+			newState['messagesList'] = action.data
+			newState['messagesLoaded'] = true
 			
+			return newState
+
+		case constant.CHAT_ACTIVATED: 
+			newState['messagesList'] = action.data
+			return newState
+
+		case constant.CONTACT_ACTIVATED: 
+			newState['messagesList'] = []
 			return newState
 
 		default:

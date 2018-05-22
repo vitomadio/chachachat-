@@ -2,7 +2,9 @@ import constant from '../constants'
 
 var initialState = {
 	chatList: [],
-	activeChat: ''
+	activeChat: {},
+	activeFetched: false,
+	chatListFetched: false
 }
 
 export default (state = initialState, action) => {
@@ -12,34 +14,57 @@ export default (state = initialState, action) => {
 
 		switch(action.type){
 
-			case constant.CONTACT_CHAT_FETCHED:
-				newChatList.push(action.data)
-				newState['chatList'] = newChatList
+//Fetching contact list
+			case constant.CHATS_FETCHED:
+				newState['chatList'] = action.data
+				newState['chatListFetched'] = true
 				return newState
 
+//Open new chat 
 			case constant.NEW_CHAT_OPENED: 	
+				for(let i=0;i<newChatList.length;i++){
+					if(newChatList[i].uid == action.data.uid){
+					 return newState
+					}
+				}
 				newChatList.unshift(action.data)
 				newState['chatList'] = newChatList
-				newState['activeChat'] = action.data.email
+				newState['activeChat'] = action.data
+				
 				return newState
 
+//Delete conversation
 			case constant.CHAT_CLOSED:
 				for(let i=0;i<newChatList.length;i++){
-					if(newChatList[i] == action.data){
+					if(newChatList[i] == action.data.email){
 					 newChatList.splice(i,1)
 					}
 				}
 				newState['chatList'] = newChatList
-				return newState		
-
-			case constant.ACTIVE_CHAT_FETCHED:
-				newState['activeChat'] = action.data.activeChat
 				return newState
 
-			case constant.CHAT_ACTIVATED:
+//Fetching if conversation remain opened in las session
+			case constant.ACTIVE_CHAT_FETCHED:
+				newState['activeChat'] = action.data
+				newState['activeFetched'] = true
+				return newState
+
+//Activates chat when click it on
+			case constant.ACTIVE_CHAT_SET:
 				newState['activeChat'] = action.data
 				return newState	
 
+//Activates contact when click it on
+			case constant.CONTACT_ACTIVATED: 
+				newChatList.push(action.data)
+				newState['chatList'] = newChatList
+				newState['activeChat'] = action.data
+				return newState
+
+			case constant.MESSAGE_SENT: 
+				newState['activeChat'] = action.data
+				return newState
+			
 			case constant.LOGGED_OUT: 
 				return initialState
 
